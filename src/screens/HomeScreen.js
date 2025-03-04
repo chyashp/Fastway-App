@@ -18,13 +18,26 @@ const HomeScreen = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [fastHistory, setFastHistory] = useState([]);
   
-  // ... existing code ...
+  // Updated color palette with different accent color
+  const colors = {
+    primary: isDarkMode ? '#4287f5' : '#2E6DD1', // Bright blue / Royal blue
+    secondary: isDarkMode ? '#61dafb' : '#0096c7', // React blue / Medium blue
+    accent: isDarkMode ? '#9370DB' : '#7B68EE', // Medium Purple / Medium Slate Blue
+    success: '#3CB371', // Medium Sea Green 
+    danger: '#F08080', // Softer red (Light Coral)
+    background: isDarkMode ? '#1A1A2E' : '#E9F0F5', // Deep blue-black / Light blue-gray
+    headerBg: isDarkMode ? '#202036' : '#D9E6F2', // Slightly lighter than background
+    cardBg: isDarkMode ? 'rgba(66, 135, 245, 0.15)' : 'rgba(46, 109, 209, 0.08)', // Subtle blue
+    text: isDarkMode ? '#FFFFFF' : '#333333',
+    textSecondary: isDarkMode ? '#CCCCCC' : '#666666',
+  }
+  
   const textColor = {
-    color: isDarkMode ? Colors.white : Colors.black,
+    color: colors.text,
   };
   
   const secondaryTextColor = {
-    color: isDarkMode ? Colors.light : Colors.dark,
+    color: colors.textSecondary,
   };
 
   useEffect(() => {
@@ -82,28 +95,36 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={[
       styles.container,
-      { backgroundColor: isDarkMode ? Colors.darker : Colors.lighter }
+      { backgroundColor: colors.background }
     ]}>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={isDarkMode ? Colors.darker : Colors.lighter}
+        backgroundColor={colors.background}
       />
       
-      <View style={styles.header}>
-        <Text style={[styles.appTitle, textColor]}>FastwayApp</Text>
-        <Text style={[styles.appSubtitle, secondaryTextColor]}>Track your fasting journey</Text>
+      <View style={[styles.header, { 
+        borderBottomWidth: 2, 
+        borderBottomColor: colors.secondary,
+        backgroundColor: colors.headerBg 
+      }]}>
+        <Text style={[styles.appTitle, { color: colors.accent }]}>FastwayApp</Text>
+        <Text style={[styles.appSubtitle, { color: colors.primary }]}>Track your fasting journey</Text>
       </View>
       
-      <View style={styles.fastingControl}>
+      <View style={[styles.fastingControl, { 
+        borderBottomWidth: 2, 
+        borderBottomColor: colors.secondary,
+        backgroundColor: colors.headerBg
+      }]}>
         {isFasting ? (
           <>
             <View style={styles.counterContainer}>
-              <Text style={[styles.counterText, textColor]}>
+              <Text style={[styles.counterText, { color: colors.accent }]}>
                 {formatTime(currentTime)}
               </Text>
             </View>
             <TouchableOpacity 
-              style={[styles.button, styles.endButton]} 
+              style={[styles.button, { backgroundColor: colors.danger }]} 
               onPress={endFast}
             >
               <Text style={styles.buttonText}>End Fast</Text>
@@ -111,7 +132,7 @@ const HomeScreen = () => {
           </>
         ) : (
           <TouchableOpacity 
-            style={[styles.button, styles.startButton]} 
+            style={[styles.button, { backgroundColor: colors.success }]} 
             onPress={startFast}
           >
             <Text style={styles.buttonText}>Start Fast</Text>
@@ -120,7 +141,7 @@ const HomeScreen = () => {
       </View>
       
       <View style={styles.historyContainer}>
-        <Text style={[styles.historyTitle, textColor]}>Fasting History</Text>
+        <Text style={[styles.historyTitle, { color: colors.accent }]}>Fasting History</Text>
         
         <ScrollView style={styles.historyList}>
           {fastHistory.length === 0 ? (
@@ -129,20 +150,29 @@ const HomeScreen = () => {
             </Text>
           ) : (
             fastHistory.map((fast) => (
-              <View key={fast.id} style={styles.historyItem}>
+              <View key={fast.id} style={[
+                styles.historyItem, 
+                { 
+                  backgroundColor: colors.cardBg,
+                  borderWidth: 2,
+                  borderColor: colors.secondary,
+                  borderLeftWidth: 4,
+                  borderLeftColor: colors.accent
+                }
+              ]}>
                 <View style={styles.historyDetails}>
                   <Text style={[styles.historyDate, textColor]}>
                     {formatDate(fast.startTime)}
                   </Text>
-                  <Text style={[styles.historyDuration, secondaryTextColor]}>
+                  <Text style={[styles.historyDuration, { color: colors.primary }]}>
                     Duration: {formatTime(fast.duration)}
                   </Text>
                 </View>
                 <TouchableOpacity 
-                  style={styles.deleteButton}
+                  style={[styles.deleteButton, { backgroundColor: 'rgba(240, 128, 128, 0.2)' }]}
                   onPress={() => deleteFast(fast.id)}
                 >
-                  <Text style={styles.deleteButtonText}>×</Text>
+                  <Text style={[styles.deleteButtonText, { color: colors.danger }]}>×</Text>
                 </TouchableOpacity>
               </View>
             ))
@@ -151,10 +181,18 @@ const HomeScreen = () => {
         
         {fastHistory.length > 0 && (
           <TouchableOpacity 
-            style={styles.clearButton} 
+            style={[
+              styles.clearButton, 
+              { 
+                backgroundColor: isDarkMode ? 'rgba(240, 128, 128, 0.15)' : 'rgba(240, 128, 128, 0.1)',
+                borderWidth: 2,
+                borderColor: colors.danger,
+                borderRadius: 8
+              }
+            ]} 
             onPress={clearHistory}
           >
-            <Text style={styles.clearButtonText}>Clear History</Text>
+            <Text style={[styles.clearButtonText, { color: colors.danger }]}>Clear History</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -181,7 +219,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     opacity: 0.8,
   },
-  // ... existing code ...
   fastingControl: {
     padding: 20,
     alignItems: 'center',
