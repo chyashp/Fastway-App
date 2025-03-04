@@ -8,6 +8,7 @@ import {
   useColorScheme,
   TouchableOpacity,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
@@ -92,6 +93,33 @@ const HomeScreen = () => {
     return date.toLocaleString();
   };
 
+  // Ensure consistent colors across platforms
+  const buttonColors = {
+    success: '#3CB371', // Exact Medium Sea Green color
+    danger: '#F08080',  // Exact Light Coral color
+  };
+
+  const buttonStyle = Platform.select({
+    android: {
+      paddingVertical: 12,
+      paddingHorizontal: 30,
+      borderRadius: 25,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginVertical: 10,
+      elevation: 0, // Remove elevation for Android
+    },
+    ios: {
+      paddingVertical: 12,
+      paddingHorizontal: 30,
+      borderRadius: 25,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginVertical: 10,
+      elevation: 2, // Keep elevation for iOS
+    }
+  });
+
   return (
     <SafeAreaView style={[
       styles.container,
@@ -124,7 +152,11 @@ const HomeScreen = () => {
               </Text>
             </View>
             <TouchableOpacity 
-              style={[styles.button, { backgroundColor: colors.danger }]} 
+              style={[
+                styles.button, 
+                buttonStyle, 
+                { backgroundColor: buttonColors.danger }
+              ]} 
               onPress={endFast}
             >
               <Text style={styles.buttonText}>End Fast</Text>
@@ -132,7 +164,11 @@ const HomeScreen = () => {
           </>
         ) : (
           <TouchableOpacity 
-            style={[styles.button, { backgroundColor: colors.success }]} 
+            style={[
+              styles.button, 
+              buttonStyle, 
+              { backgroundColor: buttonColors.success }
+            ]} 
             onPress={startFast}
           >
             <Text style={styles.buttonText}>Start Fast</Text>
@@ -143,7 +179,10 @@ const HomeScreen = () => {
       <View style={styles.historyContainer}>
         <Text style={[styles.historyTitle, { color: colors.accent }]}>Fasting History</Text>
         
-        <ScrollView style={styles.historyList}>
+        <ScrollView 
+          style={styles.historyList} 
+          contentContainerStyle={{ paddingRight: 2 }}
+        >
           {fastHistory.length === 0 ? (
             <Text style={[styles.emptyHistoryText, secondaryTextColor]}>
               No fasting history yet
@@ -157,7 +196,8 @@ const HomeScreen = () => {
                   borderWidth: 2,
                   borderColor: colors.secondary,
                   borderLeftWidth: 4,
-                  borderLeftColor: colors.accent
+                  borderLeftColor: colors.accent,
+                  marginRight: 3  // Small margin to create space between items and scrollbar
                 }
               ]}>
                 <View style={styles.historyDetails}>
@@ -226,13 +266,14 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
   },
   button: {
+    // Base button styles without elevation
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 10,
-    elevation: 2,
+    // elevation removed from here
   },
   startButton: {
     backgroundColor: '#4caf50',
