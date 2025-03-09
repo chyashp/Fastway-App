@@ -12,6 +12,10 @@ import {
 } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { SafeAreaView as SafeAreaViewContext } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Storage key
+const FASTING_HISTORY_KEY = 'FASTING_HISTORY';
 
 const HomeScreen = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -42,6 +46,67 @@ const HomeScreen = () => {
     color: colors.textSecondary,
   };
 
+  // Load fasting history from storage when component mounts
+  useEffect(() => {
+    loadFastingHistory();
+    checkForActiveFast();
+  }, []);
+
+  // Load fasting history from AsyncStorage
+  const loadFastingHistory = async () => {
+    try {
+      const historyJson = await AsyncStorage.getItem(FASTING_HISTORY_KEY);
+      if (historyJson) {
+        setFastHistory(JSON.parse(historyJson));
+      }
+    } catch (error) {
+      console.error('Error loading fasting history:', error);
+    }
+  };
+
+  // Check if there was an active fast when app was closed
+  const checkForActiveFast = async () => {
+    try {
+      const activeFastJson = await AsyncStorage.getItem('ACTIVE_FAST');
+      if (activeFastJson) {
+        const activeFast = JSON.parse(activeFastJson);
+        setIsFasting(true);
+        setFastStartTime(activeFast.startTime);
+        const elapsed = Math.floor((Date.now() - activeFast.startTime) / 1000);
+        setCurrentTime(elapsed);
+      }
+    } catch (error) {
+      console.error('Error checking for active fast:', error);
+    }
+  };
+
+  // Save fasting history to AsyncStorage
+  const saveFastingHistory = async (history) => {
+    try {
+      await AsyncStorage.setItem(FASTING_HISTORY_KEY, JSON.stringify(history));
+    } catch (error) {
+      console.error('Error saving fasting history:', error);
+    }
+  };
+
+  // Save active fast to AsyncStorage
+  const saveActiveFast = async (startTime) => {
+    try {
+      await AsyncStorage.setItem('ACTIVE_FAST', JSON.stringify({ startTime }));
+    } catch (error) {
+      console.error('Error saving active fast:', error);
+    }
+  };
+
+  // Clear active fast from AsyncStorage
+  const clearActiveFast = async () => {
+    try {
+      await AsyncStorage.removeItem('ACTIVE_FAST');
+    } catch (error) {
+      console.error('Error clearing active fast:', error);
+    }
+  };
+
   useEffect(() => {
     let interval;
     if (isFasting) {
@@ -58,6 +123,7 @@ const HomeScreen = () => {
     setFastStartTime(startTime);
     setIsFasting(true);
     setCurrentTime(0);
+    saveActiveFast(startTime);
   };
 
   const endFast = () => {
@@ -69,17 +135,23 @@ const HomeScreen = () => {
       endTime,
       duration,
     };
-    setFastHistory([newFast, ...fastHistory]);
+    const updatedHistory = [newFast, ...fastHistory];
+    setFastHistory(updatedHistory);
     setIsFasting(false);
     setFastStartTime(null);
+    saveFastingHistory(updatedHistory);
+    clearActiveFast();
   };
 
   const deleteFast = (id) => {
-    setFastHistory(fastHistory.filter(fast => fast.id !== id));
+    const updatedHistory = fastHistory.filter(fast => fast.id !== id);
+    setFastHistory(updatedHistory);
+    saveFastingHistory(updatedHistory);
   };
 
   const clearHistory = () => {
     setFastHistory([]);
+    saveFastingHistory([]);
   };
 
   const formatTime = (seconds) => {
