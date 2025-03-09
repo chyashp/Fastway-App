@@ -11,6 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { SafeAreaView as SafeAreaViewContext } from 'react-native-safe-area-context';
 
 const HomeScreen = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -121,10 +122,7 @@ const HomeScreen = () => {
   });
 
   return (
-    <SafeAreaView style={[
-      styles.container,
-      { backgroundColor: colors.background }
-    ]}>
+    <SafeAreaViewContext style={styles.container} edges={['top', 'right', 'bottom', 'left']}>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={colors.background}
@@ -236,7 +234,7 @@ const HomeScreen = () => {
           </TouchableOpacity>
         )}
       </View>
-    </SafeAreaView>
+    </SafeAreaViewContext>
   );
 };
 

@@ -3,13 +3,17 @@
  */
 
 import React from 'react';
-import { useColorScheme } from 'react-native';
+import { StatusBar } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import HomeScreen from './src/screens/HomeScreen';
 
-function App() {
+const App = () => {
   return (
-    <HomeScreen />
+    <SafeAreaProvider>
+      <StatusBar barStyle="light-content" backgroundColor="#4A6572" />
+      <HomeScreen />
+    </SafeAreaProvider>
   );
-}
+};
 
 export default App;
